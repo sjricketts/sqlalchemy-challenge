@@ -3,6 +3,8 @@ from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, func
 
+import numpy as np
+
 from flask import Flask, jsonify
 
 engine = create_engine("sqlite:///resources/hawaii.sqlite")
@@ -24,6 +26,7 @@ def home():
         f"/ api/v1.0/<start><br/>"
         f"/ api/v1.0/<start>/<end><br/>"
     )
+
 
 if __name__ == '__main__':
     app.run(debug=True)
