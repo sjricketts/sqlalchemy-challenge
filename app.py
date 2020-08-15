@@ -1,23 +1,32 @@
+# import SQLAlchemy
 import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, func
 
+# import numpy and datetime
 import numpy as np
 import datetime as dt
+
+# import flask
 from flask import Flask, jsonify
 
 engine = create_engine("sqlite:///resources/hawaii.sqlite")
+
+# reflect existing database
 Base = automap_base()
+
+# reflect existing tables
 Base.prepare(engine, reflect=True)
 Measurement = Base.classes.measurement
 Station = Base.classes.station
 
 session = Session(engine)
 
+# create Flask app
 app = Flask(__name__)
 
-
+# home
 @app.route("/")
 def home():
     return (
@@ -29,7 +38,7 @@ def home():
         f"/ api/v1.0/<start>/<end><br/>"
     )
 
-
+#precipitation
 @app.route("/api/v1.0/precipitation")
 def precipitation():
     session = Session(engine)
@@ -47,7 +56,7 @@ def precipitation():
 
     return jsonify(all_date_prcp)
 
-
+# stations
 @app.route("/api/v1.0/stations")
 def stations():
     session = Session(engine)
@@ -61,6 +70,6 @@ def stations():
 
     return jsonify(all_stations)
 
-
+# debug
 if __name__ == '__main__':
     app.run(debug=True)
