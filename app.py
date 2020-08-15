@@ -26,7 +26,7 @@ session = Session(engine)
 # create Flask app
 app = Flask(__name__)
 
-# home
+# home--List all routes that are available.
 @app.route("/")
 def home():
     return (
@@ -34,11 +34,12 @@ def home():
         f"/api/v1.0/precipitation<br/>"
         f"/api/v1.0/stations<br/>"
         f"/api/v1.0/tobs<br/>"
-        f"/ api/v1.0/<start><br/>"
-        f"/ api/v1.0/<start>/<end><br/>"
+        f"/api/v1.0/<start><br/>"
+        f"/api/v1.0/<start>/<end><br/>"
     )
 
-# precipitation
+# precipitation--Convert the query results to a dictionary using date as the key and prcp as the value.
+# Return the JSON representation of your dictionary.
 @app.route("/api/v1.0/precipitation")
 def precipitation():
     session = Session(engine)
@@ -56,7 +57,7 @@ def precipitation():
 
     return jsonify(all_date_prcp)
 
-# Return a JSON list of stations from the dataset.
+# stations--Return a JSON list of stations from the dataset.
 @app.route("/api/v1.0/stations")
 def stations():
     session = Session(engine)
@@ -70,7 +71,7 @@ def stations():
 
     return jsonify(all_stations)
 
-# Query the dates and temperature observations of the most active station for the last year of data.
+# tobs--Query the dates and temperature observations of the most active station for the last year of data.
 # Return a JSON list of temperature observations (TOBS) for the previous year.
 @app.route("/api/v1.0/tobs")
 def tobs():
@@ -92,6 +93,27 @@ def tobs():
 
     return jsonify(tobs)
 
+
+# Return a JSON list of the minimum temperature, the average temperature, and the max temperature for a given start or start-end range.
+# When given the start only, calculate TMIN, TAVG, and TMAX for all dates greater than and equal to the start date.
+# When given the start and the end date, calculate the TMIN, TAVG, and TMAX for dates between the start and end date inclusive.
+@app.route("/api/v1.0/<start>")
+def start_only(start):
+    session = Session(engine)
+    
+    for date in start:
+        low_temp = session.query(func.min(Measurement.tobs)).filter(
+            Measurement.station == 'USC00519281').all()
+        high_temp = session.query(func.max(Measurement.tobs)).filter(
+            Measurement.station == 'USC00519281').all()
+        mean_temp = session.query(func.avg(Measurement.tobs)).filter(
+            Measurement.station == 'USC00519281').all()
+    
+    session.close()
+
+    = list(np.ravel(last_year_tobs))
+
+    return jsonify()
 
 # debug
 if __name__ == '__main__':
