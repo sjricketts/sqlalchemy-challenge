@@ -38,7 +38,7 @@ def home():
         f"/ api/v1.0/<start>/<end><br/>"
     )
 
-#precipitation
+# precipitation
 @app.route("/api/v1.0/precipitation")
 def precipitation():
     session = Session(engine)
@@ -72,20 +72,26 @@ def stations():
 
 # Query the dates and temperature observations of the most active station for the last year of data.
 # Return a JSON list of temperature observations (TOBS) for the previous year.
-#@app.route("/api/v1.0/tobs")
-#def tobs():
-    #session = Session(engine)
+@app.route("/api/v1.0/tobs")
+def tobs():
+    session = Session(engine)
 
-    #count_stations = session.query(Measurement.station, func.count(Measurement.station)).\
-        #group_by(Measurement.station).\
-        #order_by(func.count(Measurement.station).desc()).all()
+    active_station = session.query(Measurement.station, func.count(Measurement.station)).\
+        group_by(Measurement.station).\
+        order_by(func.count(Measurement.station).desc()).limit(1).all()
 
-    #session.close()
+    one_year_ago = dt.date(2017, 8, 23) - dt.timedelta(days=365)
+
+    last_year_tobs = session.query(Measurement.tobs).\
+        filter(Measurement.station=active_station).filter(Measurement.date >= one_year_ago).all()
+
+    session.close()
 
     # Convert list of tuples into normal list
-    #all_stations = list(np.ravel(num_stations))
+    tobs = list(np.ravel(last_year_tobs))
 
-    #return jsonify(all_stations)
+    return jsonify(tobs)
+
 
 # debug
 if __name__ == '__main__':
