@@ -56,19 +56,36 @@ def precipitation():
 
     return jsonify(all_date_prcp)
 
-# stations
+# Return a JSON list of stations from the dataset.
 @app.route("/api/v1.0/stations")
 def stations():
     session = Session(engine)
 
-    num_stations = session.query(Station.station).count()
+    stations = session.query(Station.station).all()
 
     session.close()
 
     # Convert list of tuples into normal list
-    all_stations = list(np.ravel(num_stations))
+    all_stations = list(np.ravel(stations))
 
     return jsonify(all_stations)
+
+# Query the dates and temperature observations of the most active station for the last year of data.
+# Return a JSON list of temperature observations (TOBS) for the previous year.
+#@app.route("/api/v1.0/tobs")
+#def tobs():
+    #session = Session(engine)
+
+    #count_stations = session.query(Measurement.station, func.count(Measurement.station)).\
+        #group_by(Measurement.station).\
+        #order_by(func.count(Measurement.station).desc()).all()
+
+    #session.close()
+
+    # Convert list of tuples into normal list
+    #all_stations = list(np.ravel(num_stations))
+
+    #return jsonify(all_stations)
 
 # debug
 if __name__ == '__main__':
