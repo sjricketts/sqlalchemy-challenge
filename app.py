@@ -13,6 +13,8 @@ Base.prepare(engine, reflect=True)
 Measurement = Base.classes.measurement
 Station = Base.classes.station
 
+session = Session(engine)
+
 app = Flask(__name__)
 
 
