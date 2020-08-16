@@ -42,12 +42,9 @@ def home():
 def precipitation():
     session = Session(engine)
 
-    last_date = session.query(Measurement.date).order_by(
-        (Measurement.date).desc()).all()
     one_year_ago = dt.date(2017, 8, 23) - dt.timedelta(days=365)
     date_prcp = session.query(Measurement.date, Measurement.prcp).filter(
         Measurement.date >= one_year_ago).all()
-
 
     session.close()
 
@@ -70,25 +67,28 @@ def stations():
 
     return jsonify(all_stations)
 
+
 # tobs--Query the dates and temperature observations of the most active station for the last year of data.
 # Return a JSON list of temperature observations (TOBS) for the previous year.
 app.route("/api/v1.0/tobs")
+
+
 def temp_monthly():
     session = Session(engine)
-    
+
     prev_year = dt.date(2017, 8, 23) - dt.timedelta(days=365)
-    
+
     results = session.query(Measurement.tobs).\
         filter(Measurement.station == 'USC00519281').\
         filter(Measurement.date >= prev_year).all()
-    
+
     session.close()
 
     # Convert list of tuples into normal list
     temps = list(np.ravel(results))
-    
+
     return jsonify(temps=temps)
-    
+
 
 # Return a JSON list of the minimum temperature, the average temperature, and the max temperature for a given start or start-end range.
 # When given the start only, calculate TMIN, TAVG, and TMAX for all dates greater than and equal to the start date.
@@ -96,27 +96,28 @@ def temp_monthly():
 @app.route("/api/v1.0/temp/<start>")
 @app.route("/api/v1.0/temp/<start>/<end>")
 def stats(start=None, end=None):
-    
+
     session = Session(engine)
-    
-    sel = [func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)]
-    # calculate TMIN, TAVG, TMAX with only start
+
+    sel = [func.min(Measurement.tobs), func.avg(
+        Measurement.tobs), func.max(Measurement.tobs)]
+    # start date only
     if not end:
         results = session.query(*sel).\
             filter(Measurement.date >= start).all()
-        
-        # Unravel results into a 1D array and convert to a list
+
+        # Convert list of tuples into normal list
         temps = list(np.ravel(results))
         return jsonify(temps)
-    
-    # calculate TMIN, TAVG, TMAX with start and stop
+
+    # both start and stop dates
     results = session.query(*sel).\
         filter(Measurement.date >= start).\
         filter(Measurement.date <= end).all()
-    
+
     session.close()
 
-    # Unravel results into a 1D array and convert to a list
+    # Convert list of tuples into normal list
     temps = list(np.ravel(results))
     return jsonify(temps=temps)
 
