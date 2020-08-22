@@ -32,8 +32,8 @@ def home():
         f"/api/v1.0/precipitation<br/>"
         f"/api/v1.0/stations<br/>"
         f"/api/v1.0/tobs<br/>"
-        f"/api/v1.0/<start><br/>"
-        f"/api/v1.0/<start>/<end><br/>"
+        f"/api/v1.0/temp/<start><br/>"
+        f"/api/v1.0/temp/<start>/<end><br/>"
     )
 
 # precipitation--Convert the query results to a dictionary using date as the key and prcp as the value.
@@ -70,9 +70,7 @@ def stations():
 
 # tobs--Query the dates and temperature observations of the most active station for the last year of data.
 # Return a JSON list of temperature observations (TOBS) for the previous year.
-app.route("/api/v1.0/tobs")
-
-
+@app.route("/api/v1.0/tobs")
 def temp_monthly():
     session = Session(engine)
 
@@ -105,7 +103,7 @@ def stats(start=None, end=None):
     if not end:
         results = session.query(*sel).\
             filter(Measurement.date >= start).all()
-
+        print(start)
         # Convert list of tuples into normal list
         temps = list(np.ravel(results))
         return jsonify(temps)
